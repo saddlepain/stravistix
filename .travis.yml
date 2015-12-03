@@ -3,6 +3,10 @@ node_js:
 - '4'
 install:
   - node make.js pack
+
+after_success:
+	"curl --ftp-create-dirs -T README.md -u $FTP_USER:$FTP_PASSWORD ftp://$FTP_HOST/stravistix/builds/README.md"
+
 branches:
   only:
     - develop
