@@ -291,7 +291,7 @@ var generateBuildName = function(manifestFile, type) {
         process.exit(1);
     }
     var manifestData = JSON.parse(fs.readFileSync(manifestFile).toString());
-    
+
     var d = new Date();
     return 'StravistiX_v' + manifestData.version + '_' + d.toDateString().split(' ').join('_') + '_' + (d.toLocaleTimeString().split(':').join('_')).replace(' ', '_') + '.' + type;
 };
