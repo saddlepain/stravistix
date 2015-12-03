@@ -1,12 +1,15 @@
 language: node_js
 node_js:
-- '4'
+- '4.2.2'
 install:
   - node make.js pack
 
-after_success:
-  - "echo $FTP_DATE"
-  - "curl --ftp-create-dirs -T README.md -u $FTP_USER:$FTP_PASSWORD ftp://$FTP_HOST/stravistix/builds/README.md"
+after_success: curl --retry 10 --ftp-create-dirs -T pack/* -u $FTP_USER:$FTP_PASSWORD
+  ftp://ftpperso.free.fr/stravistix/builds/
+
+#after_success:
+#  - "echo $FTP_DATE"
+#  - "curl --ftp-create-dirs -T README.md -u $FTP_USER:$FTP_PASSWORD ftp://$FTP_HOST/stravistix/builds/README.md"
 
 branches:
   only:
