@@ -3,14 +3,10 @@ node_js:
 - 4.2.2
 install:
 - node make.js pack
+
 after_success:
 - echo $TRAVIS_BUILD_DIR
-- curl --retry 10 --ftp-create-dirs -T $TRAVIS_BUILD_DIR/README.md -u $FTP_USER:$FTP_PASSWORD ftp://ftpperso.free.fr/stravistix/builds/
-
-env:
-  global:
-  - secure: CJjvfXbCXtiuZrvznXuqLlt3O9WVy4wFX+Y2nW88tSLNBUrJz2+yxRdxVu+X+AwxDi9WsNdOVWaPo/TPjOgtlhxQpKFyBFZNaR7P5ULHQWJmrwq2WqblI7YArkPf6OwkavphaMUpPjVVjELpugdO4w9gCHsU8T7ARN4O9KgiPpD1NIw1m1PmvYwktNyXkIbjxSQJCev0QKABUBG+qHgwyKZpKWym6tSKySsa7tJRHVN+gTIZ+JbYllwtGofMEmsn6rrctfl92EGiOfFr01EWjbvOw57tOSdNBncDY6k6vmH1SBp+3COWMmOhMVICdLos5mcn9G79AdIHAp1h+2a3ed6njiLIjqHf4bxLD9rUO8ywjIzZiKZ4rWlJbmF2/e8uvX/+o4man02PXgRefUf9PZ73hDz03RSbi/gucZY9YB/Mk0NT5j7ZhIWYYHJDkOk/l96hlv3NbT5l7WvSpsAnmHp7B4fnGCLqSuWrORdEvLnM5UhGUvK8LU7neH/PivGd+x7Y/0yvW7dav79uKarZKrHyjCM4njdelEXr1nVIWh0Vvr8QafAxkLiUzvfqjkH3k+okLmaadJVNj6p6bz+Y1u1Q2XZCqyolD0gM/uFzSUcoxrQoDzidkhkg3mqbMqpkSoAb+NdskaHvftEUdem7MNuSMaq0NQoNs9g5w7uH8F8=
-  - secure: YsLATEWdMUdsgf0QfEByjynsXeIblD4uAuCM2036tS7ojbsJHkGiZsAsky8Kjjyxeeg1zsNI4fLnTJfOEgHmuLOVJqxl1C8AwAwyBANCHHq7mMBvgncKiFQR30TJbdDmqqaY6yofjuM/cVCYLCRvXh3qUYmGhHWspwBwmN6ouUCAAS7n1uQmyiXDsouJueqd8ysiVtssZBDnzKgz4t5zcuzyeTYG5ZQvWJgJK+t8F2HjnRLcgqvFGvpr5Wwg8D3xH6NjwV9eyWt+jTm3OPlp6fbvPkkyfbzXRZE3iFPdLmKmJzlGt06VmRTNrbr8MgW5VUFBs/XuJIf7hDj1ISavQ3UJLIB9+s11WaLXM4qNmiejHj6loPgIjRk/W2iLwv9wye7XqThYP4oAE28c6vxiJzblHUcpeeJkQH2TDZAjqMjE4t0Z3RnPQzeUdDJsQdeRIgNzteDygQqAQ6gJpF24PZoDyYIHC/r/7K+PuLBGIBTJS1AXVf9pKDJ5lBoiYGpSifZTZ081mGEMrSh3hAm00UoyUygZ7KVPbIrwCQzL2jYG0hzakMnOU0KHNyc4RudCkykrqGmLJUfldx2vhSSHyxWdUEdjVxYR+RuljbS+dzKTFnKiQ4KhIdiB6YK5pol7wjlDeaJBHj06+ToS8wAWhXOLBiEutnN6/nKhIesQZug=
+- curl --retry 10 --ftp-create-dirs -T $TRAVIS_BUILD_DIR/README.md -u $FTP_USER:$FTP_PASSWORD ftp://$FTP_HOST/temp/
 
 branches:
   only:
