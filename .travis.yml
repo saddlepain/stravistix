@@ -3,3 +3,7 @@ node_js:
 - '4'
 install:
   - node make.js pack
+branches:
+  only:
+    - develop
+    - feature/163
