@@ -4,8 +4,9 @@ node_js:
 install:
   - node make.js pack
 
-after_success: curl --retry 10 --ftp-create-dirs -T pack/* -u $FTP_USER:$FTP_PASSWORD
-  ftp://ftpperso.free.fr/stravistix/builds/
+after_success:
+  - echo $TRAVIS_BUILD_DIR
+  - curl --retry 10 --ftp-create-dirs -T $TRAVIS_BUILD_DIR/README.md -u $FTP_USER:$FTP_PASSWORD ftp://ftpperso.free.fr/stravistix/builds/
 
 #after_success:
 #  - "echo $FTP_DATE"
