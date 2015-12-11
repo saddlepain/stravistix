@@ -5,10 +5,9 @@ install:
 - node make.js pack
 
 after_success:
-  - echo $KEY > .travis/deploy_key.pem
   - eval "$(ssh-agent -s)" #start the ssh agent
-  - chmod 600 .travis/deploy_key.pem # this key should have push access
-  - ssh-add .travis/deploy_key.pem
+  - chmod 600 .travis/deploykey.enc # this key should have push access
+  - ssh-add .travis/deploykey.enc
   - git clone git@github.com:saddlepain/stravistixchannel.git
   - cd stravistixchannel/
   - echo helloworld > newfile.txt
