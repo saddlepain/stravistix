@@ -5,17 +5,13 @@ install:
 - node make.js pack
 
 after_success:
-  - eval "$(ssh-agent -s)" #start the ssh agent
-  - chmod 600 .travis/deploykey.enc # this key should have push access
-  - ssh-add .travis/deploykey.enc
-  - git clone git@github.com:saddlepain/stravistixchannel.git
-  - cd stravistixchannel/
-  - echo helloworld > newfile.txt
-  - git add newfile.txt
-  - git commit -m "New Deploy"
-  - git remote add deploy git@github.com:saddlepain/stravistixchannel.git
-  - git push deploy
-
+  - cd pack/
+  - git init
+  - git config user.name "saddlepain"
+  - git config user.email "s4ddlepain@gmx.com"
+  - git add .
+  - git commit -m "Deploy to GitHub"
+  - git push --force --quiet "https://${GH_TOKEN}@${GH_REF}" master:develop > /dev/null 2>&1
 branches:
   only:
   - develop
