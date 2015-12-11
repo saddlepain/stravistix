@@ -187,12 +187,57 @@ var build = function() {
 
 var pack = function() {
 
-    var updateDistManifestFileForPacking = function(manifestFile) {
+    var computedNextSubDevVersion = function(fromVersion) {
+        var devSubVersion = fromVersion.split('.')[3];
+        var toVersion;
+        if (devSubVersion) {
+            toVersion = fromVersion.slice(0, fromVersion.lastIndexOf('.')) + '.' + (parseInt(devSubVersion) + 1);
+        } else {
+            toVersion = fromVersion + '.' + 1;
+        }
+        return toVersion;
+    };
 
+    var fetchLastestDevVersion = function(callback) {
+        // Fetch current version
+        var https = require('https');
+        var options = {
+            host: 'raw.githubusercontent.com',
+            port: 443,
+            path: '/saddlepain/stravistixchannel/develop/update.xml',
+            method: 'GET'
+        };
+        var req = https.request(options, function(res) {
+            res.on('data', function(d) {
+                var XML = require('pixl-xml');
+                var jsonUpdate = XML.parse(d);
+                callback(null, jsonUpdate.app.updatecheck.version);
+            });
+        });
+        req.end();
+        req.on('error', function(e) {
+            console.error(e);
+            callback(e, null);
+        });
+    };
+
+    var updateDistManifestFileForPacking = function(manifestFile, callback) {
         var manifestData = JSON.parse(fs.readFileSync(manifestFile).toString());
         manifestData.update_url = AUTOUPDATE_URL + '/update.xml';
-        manifestData.version_name = manifestData.version + ' Developer Preview';
-        fs.writeFileSync(manifestFile, JSON.stringify(manifestData));
+
+        fetchLastestDevVersion(function(err, latestVersion) {
+
+            if (err) {
+                callback(err);
+                return;
+            }
+
+            manifestData.version = computedNextSubDevVersion(latestVersion);
+            manifestData.version_name = manifestData.version + ' Developer Preview';
+            fs.writeFileSync(manifestFile, JSON.stringify(manifestData));
+
+            callback(null);
+        });
     };
 
     dist(function() {
@@ -204,38 +249,46 @@ var pack = function() {
         fs.mkdirSync(PACK_FOLDER);
 
         // Some change into dist manifest file... add update url .. edit version..
-        updateDistManifestFileForPacking(DIST_FOLDER + '/manifest.json');
+        updateDistManifestFileForPacking(DIST_FOLDER + '/manifest.json', function(err) {
 
-        // Setup crx name
-        var crxFilename = generateBuildName(DIST_FOLDER + '/manifest.json', 'crx');
+            if (err) {
+                console.error(err);
+                return;
+            }
+            
+            // Setup crx name
+            var crxFilename = generateBuildName(DIST_FOLDER + '/manifest.json', 'crx');
 
-        var crx = new ChromeExtension({
-            codebase: AUTOUPDATE_URL + crxFilename,
-            rootDirectory: DIST_FOLDER,
-            privateKey: fs.readFileSync(join(__dirname, 'hook/extension.pem'))
-        });
-
-        // Package it
-        crx.load().then(function(crx) {
-
-            crx.pack().then(function(crxBuffer) {
-
-                var crxPath = PACK_FOLDER + crxFilename;
-
-                console.log('Writing crx file to ' + crxPath);
-
-                fs.writeFile(crxPath, crxBuffer, function(err) {
-                    if (err) throw err;
-                    console.log('crx saved at ' + crxPath);
-                });
-
-                // Write update XML file
-                var updateXML = crx.generateUpdateXML();
-                var updateXMLPath = join(PACK_FOLDER, 'update.xml');
-                fs.writeFile(updateXMLPath, updateXML);
-                console.log('update.xml file saved at ' + updateXMLPath);
+            var crx = new ChromeExtension({
+                codebase: AUTOUPDATE_URL + crxFilename,
+                rootDirectory: DIST_FOLDER,
+                privateKey: fs.readFileSync(join(__dirname, 'hook/extension.pem'))
             });
-        });
+
+            // Package it
+            crx.load().then(function(crx) {
+
+                crx.pack().then(function(crxBuffer) {
+
+                    var crxPath = PACK_FOLDER + crxFilename;
+
+                    console.log('Writing crx file to ' + crxPath);
+
+                    fs.writeFile(crxPath, crxBuffer, function(err) {
+                        if (err) throw err;
+                        console.log('crx saved at ' + crxPath);
+                    });
+
+                    // Write update XML file
+                    var updateXML = crx.generateUpdateXML();
+                    var updateXMLPath = join(PACK_FOLDER, 'update.xml');
+                    fs.writeFile(updateXMLPath, updateXML);
+                    console.log('update.xml file saved at ' + updateXMLPath);
+                });
+            });
+
+        }.bind(this));
+
     });
 };
 
