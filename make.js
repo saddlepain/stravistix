@@ -255,7 +255,7 @@ var pack = function() {
                 console.error(err);
                 return;
             }
-            
+
             // Setup crx name
             var crxFilename = generateBuildName(DIST_FOLDER + '/manifest.json', 'crx');
 
