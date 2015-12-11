@@ -9,7 +9,7 @@ var EXT_FOLDER = HOOK_FOLDER + 'extension/';
 var DIST_FOLDER = __dirname + '/dist/';
 var BUILD_FOLDER = __dirname + '/builds/';
 var PACK_FOLDER = __dirname + '/pack/';
-var AUTOUPDATE_URL = 'http://champagne.thomas.free.fr/stravistix/builds/';
+var AUTOUPDATE_URL = 'https://raw.githubusercontent.com/saddlepain/stravistixchannel/develop/';
 
 var action = process.argv.slice(2)[0];
 

@@ -5,8 +5,17 @@ install:
 - node make.js pack
 
 after_success:
-- echo $TRAVIS_BUILD_DIR
-- curl --retry 10 --ftp-create-dirs -T $TRAVIS_BUILD_DIR/README.md -u $FTP_USER:$FTP_PASSWORD ftp://$FTP_HOST/temp/
+  - echo $KEY > .travis/deploy_key.pem
+  - eval "$(ssh-agent -s)" #start the ssh agent
+  - chmod 600 .travis/deploy_key.pem # this key should have push access
+  - ssh-add .travis/deploy_key.pem
+  - git clone git@github.com:saddlepain/stravistixchannel.git
+  - cd stravistixchannel/
+  - echo helloworld > newfile.txt
+  - git add newfile.txt
+  - git commit -m "New Deploy"
+  - git remote add deploy git@github.com:saddlepain/stravistixchannel.git
+  - git push deploy
 
 branches:
   only:
