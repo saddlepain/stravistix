@@ -11,7 +11,7 @@ var BUILD_FOLDER = __dirname + '/builds/';
 var AUTOUPDATE_URL = 'https://raw.githubusercontent.com/saddlepain/stravistixchannel/develop';
 
 var action = process.argv.slice(2)[0];
-var param = process.argv.slice(2)[1];
+var subAction = process.argv.slice(2)[1];
 
 setTimeout(function() {
 
@@ -28,7 +28,7 @@ setTimeout(function() {
                 break;
 
             case 'dist':
-                switch (param) {
+                switch (subAction) {
                     case 'release':
                         releaseDist();
                         break;
@@ -42,7 +42,16 @@ setTimeout(function() {
                 break;
 
             case 'build':
-                build();
+                switch (subAction) {
+                    case 'release':
+                        buildRelease();
+                        break;
+                    default:
+                        showUsage();
+                        break;
+                }
+                break;
+
                 break;
 
             case 'clean':
@@ -152,7 +161,7 @@ var releaseDist = function(callback) {
 /**
  *
  */
-var build = function(callback) {
+var buildRelease = function(callback) {
 
     releaseDist(function() {
 
@@ -287,116 +296,6 @@ var devChannelDist = function() {
     });
 };
 
-
-/*
-var pack = function() {
-
-    var computedNextSubDevVersion = function(fromVersion) {
-        var devSubVersion = fromVersion.split('.')[3];
-        var toVersion;
-        if (devSubVersion) {
-            toVersion = fromVersion.slice(0, fromVersion.lastIndexOf('.')) + '.' + (parseInt(devSubVersion) + 1);
-        } else {
-            toVersion = fromVersion + '.' + 1;
-        }
-        return toVersion;
-    };
-
-    var fetchLastestDevVersion = function(callback) {
-        // Fetch current version
-        var https = require('https');
-        var options = {
-            host: 'raw.githubusercontent.com',
-            port: 443,
-            path: '/saddlepain/stravistixchannel/develop/update.xml',
-            method: 'GET'
-        };
-        var req = https.request(options, function(res) {
-            res.on('data', function(d) {
-                var XML = require('pixl-xml');
-                var jsonUpdate = XML.parse(d);
-                callback(null, jsonUpdate.app.updatecheck.version);
-            });
-        });
-        req.end();
-        req.on('error', function(e) {
-            console.error(e);
-            callback(e, null);
-        });
-    };
-
-    var updateDistManifestFileForPacking = function(manifestFile, callback) {
-        var manifestData = JSON.parse(fs.readFileSync(manifestFile).toString());
-        manifestData.update_url = AUTOUPDATE_URL + '/update.xml';
-
-        fetchLastestDevVersion(function(err, latestVersion) {
-
-            if (err) {
-                callback(err);
-                return;
-            }
-
-            manifestData.version = computedNextSubDevVersion(latestVersion);
-            manifestData.version_name = manifestData.version + ' Developer Preview';
-            fs.writeFileSync(manifestFile, JSON.stringify(manifestData));
-
-            callback(null);
-        });
-    };
-
-    releaseDist(function() {
-
-        ChromeExtension = require("crx");
-
-        console.log('Packaging crx file from dist/ folder...');
-        console.log('Creating ' + PACK_FOLDER + ' folder...');
-        fs.mkdirSync(PACK_FOLDER);
-
-        // Some change into dist manifest file... add update url .. edit version..
-        updateDistManifestFileForPacking(DIST_FOLDER + '/manifest.json', function(err) {
-
-            if (err) {
-                console.error(err);
-                return;
-            }
-
-            // Setup crx name
-            var crxFilename = generateBuildName(DIST_FOLDER + '/manifest.json', 'crx');
-
-            var crx = new ChromeExtension({
-                codebase: AUTOUPDATE_URL + crxFilename,
-                rootDirectory: DIST_FOLDER,
-                privateKey: fs.readFileSync(join(__dirname, 'hook/extension.pem'))
-            });
-
-            // Package it
-            crx.load().then(function(crx) {
-
-                crx.pack().then(function(crxBuffer) {
-
-                    var crxPath = PACK_FOLDER + crxFilename;
-
-                    console.log('Writing crx file to ' + crxPath);
-
-                    fs.writeFile(crxPath, crxBuffer, function(err) {
-                        if (err) throw err;
-                        console.log('crx saved at ' + crxPath);
-                    });
-
-                    // Write update XML file
-                    var updateXML = crx.generateUpdateXML();
-                    var updateXMLPath = join(PACK_FOLDER, 'update.xml');
-                    fs.writeFile(updateXMLPath, updateXML);
-                    console.log('update.xml file saved at ' + updateXMLPath);
-                });
-            });
-
-        }.bind(this));
-
-    });
-};
-*/
-
 var clean = function(callback) {
     console.log('Cleaning builds/, dist/ pack/ and node_modules/ folders...');
     deleteFolderRecursive('node_modules');
@@ -414,11 +313,17 @@ var clean = function(callback) {
  */
 var showUsage = function() {
     console.log('Usage:');
-    console.log('node ' + path.basename(__filename) + ' <init|dist <release|devChannel>|build|clean>\r\n');
+    console.log('node ' + path.basename(__filename) + ' <init|dist <release|devChannel>|build <release>|clean>\r\n');
     console.log('init: Install dependencies');
-    console.log('dist: Create distribution folder along \'release\' and \'devChannel\' params. The \'devChannel\' dist will have version auto-incremented and flagged as \'Developer Preview\'');
-    console.log('build: Create a archive of distribution folder (release)');
-    console.log('clean: Clean builds/, dist/ and node_modules/ folders');
+    console.log('dist <release|devChannel>: Create distribution folder along \'release\' or \'devChannel\' params. The \'devChannel\' dist will have version auto-incremented and flagged as \'Developer Preview\'');
+    console.log('build release: Create a archive of distribution folder. You should add \'release\' param after \'build\'.');
+    console.log('clean: Clean builds/, dist/ and node_modules/ folders\r\n');
+    console.log('Examples:');
+    console.log('node make.js init');
+    console.log('node make.js dist release');
+    console.log('node make.js build release');
+    console.log('node make.js clean');
+
 };
 
 /**
