@@ -8,14 +8,14 @@ var HOOK_FOLDER = __dirname + '/hook/';
 var EXT_FOLDER = HOOK_FOLDER + 'extension/';
 var DIST_FOLDER = __dirname + '/dist/';
 var BUILD_FOLDER = __dirname + '/builds/';
-var PACK_FOLDER = __dirname + '/pack/';
-var AUTOUPDATE_URL = 'https://raw.githubusercontent.com/saddlepain/stravistixchannel/develop/';
+var AUTOUPDATE_URL = 'https://raw.githubusercontent.com/saddlepain/stravistixchannel/develop';
 
 var action = process.argv.slice(2)[0];
+var param = process.argv.slice(2)[1];
 
 setTimeout(function() {
 
-    if (typeof action === 'undefined' || (action !== 'init' && action !== 'dist' && action !== 'build' && action !== 'pack' && action !== 'clean')) {
+    if (typeof action === 'undefined' || (action !== 'init' && action !== 'dist' && action !== 'build' && action !== 'clean')) {
 
         showUsage();
 
@@ -28,7 +28,17 @@ setTimeout(function() {
                 break;
 
             case 'dist':
-                dist();
+                switch (param) {
+                    case 'release':
+                        releaseDist();
+                        break;
+                    case 'devChannel':
+                        devChannelDist();
+                        break;
+                    default:
+                        showUsage();
+                        break;
+                }
                 break;
 
             case 'build':
@@ -37,10 +47,6 @@ setTimeout(function() {
 
             case 'clean':
                 clean();
-                break;
-
-            case 'pack':
-                pack();
                 break;
         }
     }
@@ -101,7 +107,7 @@ var init = function(callback) {
 /**
  *
  */
-var dist = function(callback) {
+var releaseDist = function(callback) {
 
     init(function() {
 
@@ -146,9 +152,9 @@ var dist = function(callback) {
 /**
  *
  */
-var build = function() {
+var build = function(callback) {
 
-    dist(function() {
+    releaseDist(function() {
 
         if (!fs.existsSync(BUILD_FOLDER)) {
             fs.mkdirSync(BUILD_FOLDER);
@@ -165,6 +171,9 @@ var build = function() {
 
         output.on('close', function() {
             console.log('Build finished in ' + BUILD_FOLDER + buildName);
+            if (typeof callback !== 'undefined') {
+                callback();
+            }
         });
 
         zipArchive.pipe(output);
@@ -184,7 +193,102 @@ var build = function() {
     });
 };
 
+var devChannelDist = function() {
 
+    var computedNextSubDevVersion = function(localProjectedVersion, remoteVersion) {
+
+        // Check than remote version is lower than new local else use local one
+        var localProjectedVersionSplits = (localProjectedVersion.match(/\./g) || []).length + 1;
+
+        // Find out local version number
+        var localVersionNumber = '';
+        for (var i = 0; i < localProjectedVersionSplits; i++) {
+            localVersionNumber += localProjectedVersion.split('.')[i];
+        }
+        localVersionNumber = parseInt(localVersionNumber);
+
+        // Find out remote version number
+        var remoteVersionNumber = '';
+        for (var i = 0; i < localProjectedVersionSplits; i++) {
+            remoteVersionNumber += remoteVersion.split('.')[i];
+        }
+
+        remoteVersionNumber = parseInt(remoteVersionNumber);
+
+        if (localVersionNumber > remoteVersionNumber) {
+            return localProjectedVersion;
+        }
+
+        var devSubVersion = remoteVersion.split('.')[3];
+        var toVersion;
+        if (devSubVersion) {
+            toVersion = remoteVersion.slice(0, remoteVersion.lastIndexOf('.')) + '.' + (parseInt(devSubVersion) + 1);
+        } else {
+            toVersion = remoteVersion + '.' + 1;
+        }
+        return toVersion;
+    };
+
+    var fetchLastestDevRemoteVersion = function(callback) {
+        // Fetch current version
+        var https = require('https');
+        var options = {
+            host: 'raw.githubusercontent.com',
+            port: 443,
+            path: AUTOUPDATE_URL.split('.com')[1] + '/manifest.json',
+            method: 'GET'
+        };
+
+        var req = https.request(options, function(res) {
+            res.on('data', function(jsonData) {
+                jsonData = JSON.parse(jsonData);
+                callback(null, jsonData.version);
+            });
+        });
+
+        req.end();
+        req.on('error', function(e) {
+            console.error(e);
+            callback(e, null);
+        });
+    };
+
+    var updateDistManifestFileForDevDeploy = function(manifestFile, callback) {
+        var manifestData = JSON.parse(fs.readFileSync(manifestFile).toString());
+        fetchLastestDevRemoteVersion(function(err, latestDevRemoteVersion) {
+            if (err) {
+                callback(err);
+                return;
+            }
+            manifestData.version = computedNextSubDevVersion(manifestData.version, latestDevRemoteVersion);
+            manifestData.version_name = manifestData.version + ' Developer Preview';
+            fs.writeFileSync(manifestFile, JSON.stringify(manifestData));
+            callback(null);
+        });
+    };
+
+
+    releaseDist(function() {
+
+        console.log('Creating develop channel distribution from release distibution in dist/ folder');
+
+        console.log('Updating dist/ folder for development channel...');
+
+        // Some change into dist manifest file... add update url .. edit version..
+        updateDistManifestFileForDevDeploy(DIST_FOLDER + '/manifest.json', function(err) {
+
+            if (err) {
+                console.error(err);
+                return;
+            }
+            console.log('Chrome manifest.json file has been updated');
+            console.log('The dist/ folder is ready to be deployed into github development channel...');
+        });
+    });
+};
+
+
+/*
 var pack = function() {
 
     var computedNextSubDevVersion = function(fromVersion) {
@@ -240,7 +344,7 @@ var pack = function() {
         });
     };
 
-    dist(function() {
+    releaseDist(function() {
 
         ChromeExtension = require("crx");
 
@@ -291,6 +395,7 @@ var pack = function() {
 
     });
 };
+*/
 
 var clean = function(callback) {
     console.log('Cleaning builds/, dist/ pack/ and node_modules/ folders...');
@@ -298,7 +403,6 @@ var clean = function(callback) {
     deleteFolderRecursive(EXT_FOLDER + 'node_modules');
     deleteFolderRecursive(DIST_FOLDER);
     deleteFolderRecursive(BUILD_FOLDER);
-    deleteFolderRecursive(PACK_FOLDER);
     console.log('builds/, dist/ pack/ and node_modules/ folders cleaned');
     if (callback) {
         callback();
@@ -310,10 +414,10 @@ var clean = function(callback) {
  */
 var showUsage = function() {
     console.log('Usage:');
-    console.log('node ' + path.basename(__filename) + ' <init|dist|build|clean|pack>\r\n');
+    console.log('node ' + path.basename(__filename) + ' <init|dist <release|devChannel>|build|clean>\r\n');
     console.log('init: Install dependencies');
-    console.log('dist: Create distribution folder');
-    console.log('build: Create archive of distribution folder');
+    console.log('dist: Create distribution folder along \'release\' and \'devChannel\' params. The \'devChannel\' dist will have version auto-incremented and flagged as \'Developer Preview\'');
+    console.log('build: Create a archive of distribution folder (release)');
     console.log('clean: Clean builds/, dist/ and node_modules/ folders');
 };
 

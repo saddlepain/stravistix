@@ -4,9 +4,7 @@
   "main": "make.js",
   "dependencies": {
     "archiver": "0.16.0",
-    "crx": "3.0.3",
-    "ncp": "2.0.0",
-    "pixl-xml": "^1.0.4"
+    "ncp": "2.0.0"
   },
   "scripts": {
     "test": "echo \"No test specified\""

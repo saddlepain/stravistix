@@ -2,10 +2,10 @@ language: node_js
 node_js:
 - 4.2.2
 install:
-- node make.js pack
+- node make.js dist devChannel 
 
 after_success:
-  - cd pack/
+  - cd dist/
   - git init
   - git config user.name "saddlepain"
   - git config user.email "s4ddlepain@gmx.com"
