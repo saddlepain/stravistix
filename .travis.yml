@@ -12,7 +12,7 @@ after_success:
   - git config user.email "travis@travis-ci.org"
   - git status
   - git add . --all
-  - git commit -m "Deployment commit on this development channel from a thomaschampagne/stravistix.git:develop change"
+  - git commit -m "Deployment commit for this development channel repo. Initiated by a change from thomaschampagne/stravistix.git:develop"
   - git push --force --quiet "https://${GH_TOKEN}@${GH_REF}" master:master > /dev/null 2>&1
 
 branches:
