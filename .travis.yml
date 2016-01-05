@@ -5,13 +5,14 @@ install:
 - node make.js dist devChannel 
 
 after_success:
-  - cd dist/
-  - git init
-  - git config user.name "saddlepain"
-  - git config user.email "s4ddlepain@gmx.com"
-  - git add .
+  - git clone https://${GH_REF}
+  - cp -rf dist/* stravistixchannel/
+  - cd stravistixchannel/
+  - git status
+  - git add . --all
   - git commit -m "Commit latest development channel on $(date)"
-  - git push --force --quiet "https://${GH_TOKEN}@${GH_REF}" master:develop > /dev/null 2>&1
+  - git push --force --quiet "https://${GH_TOKEN}@${GH_REF}" develop:develop > /dev/null 2>&1
+
 branches:
   only:
   - develop
