@@ -8,7 +8,7 @@ var HOOK_FOLDER = __dirname + '/hook/';
 var EXT_FOLDER = HOOK_FOLDER + 'extension/';
 var DIST_FOLDER = __dirname + '/dist/';
 var BUILD_FOLDER = __dirname + '/builds/';
-var AUTOUPDATE_URL = 'https://raw.githubusercontent.com/saddlepain/stravistixchannel/develop';
+var AUTOUPDATE_URL = 'https://raw.githubusercontent.com/saddlepain/stravistixchannel/master';
 
 var action = process.argv.slice(2)[0];
 var subAction = process.argv.slice(2)[1];
