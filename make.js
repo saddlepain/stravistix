@@ -312,11 +312,11 @@ var clean = function(callback) {
  *
  */
 var showUsage = function() {
-    console.log('Usage:');
+    console.log('Usage:\r\n');
     console.log('node ' + path.basename(__filename) + ' <init|dist <release|devChannel>|build <release>|clean>\r\n');
-    console.log('init: Install dependencies');
-    console.log('dist <release|devChannel>: Create distribution folder along \'release\' or \'devChannel\' params. The \'devChannel\' dist will have version auto-incremented and flagged as \'Developer Preview\'');
-    console.log('build release: Create a archive of distribution folder. You should add \'release\' param after \'build\'.');
+    console.log('init: Install dependencies\r\n');
+    console.log('dist <release|devChannel>: Create distribution folder along \'release\' or \'devChannel\' params. The \'devChannel\' dist will have version auto-incremented and flagged as \'Developer Preview\'\r\n');
+    console.log('build release: Create a archive of distribution folder. You should add \'release\' param after \'build\'.\r\n');
     console.log('clean: Clean builds/, dist/ and node_modules/ folders\r\n');
     console.log('Examples:');
     console.log('node make.js init');
