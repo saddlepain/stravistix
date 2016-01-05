@@ -5,17 +5,19 @@ install:
 - node make.js dist devChannel 
 
 after_success:
-  - git clone https://${GH_TOKEN}@${GH_REF}
-  - cp -rf dist/* stravistixchannel/
-  - cd stravistixchannel/
+  - git clone https://${GH_TOKEN}@${GH_REF} -b master developmentChannel
+  - cp -rf dist/* developmentChannel/
+  - cd developmentChannel/
   - git config user.name "Travis CI"
   - git config user.email "travis@travis-ci.org"
   - git status
   - git add . --all
-  - git commit -m "Commit latest development channel on $(date)"
-  - git push --force --quiet "https://${GH_TOKEN}@${GH_REF}" develop:develop > /dev/null 2>&1
+  - git commit -m "Deployment commit on this development channel from a ${GH_REF}:develop change"
+  - git push --force --quiet "https://${GH_TOKEN}@${GH_REF}" master:master > /dev/null 2>&1
 
 branches:
   only:
   - develop
   - feature/163
+
+
