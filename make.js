@@ -269,8 +269,13 @@ var devChannelDist = function() {
                 callback(err);
                 return;
             }
+
+            console.log('Current development channel remote version is: ' + latestDevRemoteVersion);
+            console.log('Local distribution version is: ' + latestDevRemoteVersion);
             manifestData.version = computedNextSubDevVersion(manifestData.version, latestDevRemoteVersion);
             manifestData.version_name = manifestData.version + ' Developer Preview';
+            console.log('New development channel remote version is now: ' + manifestData.version);
+
             fs.writeFileSync(manifestFile, JSON.stringify(manifestData));
             callback(null);
         });
