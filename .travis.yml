@@ -1,0 +1,20 @@
+language: node_js
+node_js:
+- 4.2.2
+install:
+- node make.js dist devChannel 
+
+after_success:
+  - git clone https://${GH_TOKEN}@${GH_REF} -b master developmentChannel
+  - cp -rf dist/* developmentChannel/
+  - cd developmentChannel/
+  - git config user.name "Travis CI"
+  - git config user.email "travis@travis-ci.org"
+  - git status
+  - git add . --all
+  - git commit -m "Deployment commit for this development channel repo. Initiated by a change from thomaschampagne/stravistix.git:develop"
+  - git push --force --quiet "https://${GH_TOKEN}@${GH_REF}" master:master > /dev/null 2>&1
+
+branches:
+  only:
+  - develop
