@@ -1,6 +1,8 @@
 language: node_js
+
 node_js:
 - 4.2.2
+
 install:
 - node make.js dist devChannel 
 
