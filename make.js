@@ -273,7 +273,7 @@ var devChannelDist = function() {
             console.log('Current development channel remote version is: ' + latestDevRemoteVersion);
             console.log('Local distribution version is: ' + latestDevRemoteVersion);
             manifestData.version = computedNextSubDevVersion(manifestData.version, latestDevRemoteVersion);
-            manifestData.version_name = manifestData.version + ' Developer Preview';
+            manifestData.version_name = manifestData.version + ' DeveloperChannelPreview';
             console.log('New development channel remote version is now: ' + manifestData.version);
 
             fs.writeFileSync(manifestFile, JSON.stringify(manifestData));

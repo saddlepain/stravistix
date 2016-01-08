@@ -168,6 +168,7 @@ var appResources = {
     qrCodeIcon: chrome.extension.getURL('/icons/qrcode.svg'),
     extVersion: chrome.runtime.getManifest().version,
     extensionId: chrome.runtime.id,
+    developerChannelPreview: (chrome.runtime.getManifest().version_name.split(' ')[1] === 'DeveloperChannelPreview')
 };
 
 var jsDependencies = [

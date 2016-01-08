@@ -15,6 +15,13 @@ function StravistiX(userSettings, appResources) {
     this.isPro_ = this.vacuumProcessor_.getProStatus();
     this.activityId_ = this.vacuumProcessor_.getActivityId();
 
+
+    this.developerChannelPreview = this.appResources_.developerChannelPreview;
+
+    if (this.developerChannelPreview) {
+        console.log('Running Developer Channel Preview version ' + this.appResources_.extVersion);
+    }
+
     // Make the work...
     this.init_();
 }
@@ -88,6 +95,9 @@ StravistiX.prototype = {
         this.handleTrackTodayIncommingConnection_();
         this.handleGoogleMapsComeBackModifier();
 
+        if (this.developerChannelPreview) {
+            // TODO Check for updates on Developer Channel Preview
+        }
 
     },
 
@@ -119,7 +129,11 @@ StravistiX.prototype = {
         }
 
         // Display ribbon update message
-        this.handleUpdatePopup_();
+        if (this.developerChannelPreview) {
+            // TODO Show update popup a link to github to see current commits diff between production (master) and current dev version (develop)
+        } else {
+            this.handleUpdatePopup_();
+        }
 
         // Send update info to ga
         var updatedToEvent = {
@@ -159,8 +173,6 @@ StravistiX.prototype = {
         };
 
         var message = '';
-
-
 
         message += '<div style="background: #eee; padding: 10px;"><h3><strong>At a glance in 2.2.X...</strong></h3><h3>Fixed javascript syntax error while processing activities extended stats.</h3><h3>Fixed major issue: Extended stats could disappear.</h3><h3>Added VirtualRides in yearly progression (into "My Profile")</h3><h3>Altitude accuracy improved</h3><h3>Road is now open for v3 (see upcomming features below)</h3></div>';
 
